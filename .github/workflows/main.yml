@@ -56,7 +56,7 @@ jobs:
       - name: Use HCP API Token
         run: |
           echo "Using HCP_API_TOKEN: ${HCP_API_TOKEN}"
-          curl \
+          curl -s \
             --location "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/063a2cd8-dbf9-4a4e-99f6-609d606c5454/projects/ebd78185-8887-41ab-a61b-2befcc0ab366/apps/testing-app/open" \
             --request GET \
             --header "Authorization: Bearer $HCP_API_TOKEN" | jq
