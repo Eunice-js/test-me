@@ -16,4 +16,7 @@ provider "digitalocean" {
 }
 
 provider "hcp" {
+  client_id     = var.hcp_client_id
+  client_secret = var.hcp_client_secret
+  api_token     = var.hcp_api_token
 }
