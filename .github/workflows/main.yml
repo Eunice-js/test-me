@@ -1,4 +1,4 @@
-name: terraform droplet deployment
+name: terraform droplet deployment 
 
 on:
     push:
