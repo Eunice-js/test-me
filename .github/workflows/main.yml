@@ -1,0 +1,54 @@
+name: terraform droplet deployment
+
+on:
+    push:
+      branches:
+        - feature/devOps
+    pull_request:
+        types: [closed]
+        branches:
+              - main-b
+              
+  
+jobs:
+    terraform-set-up:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Install Terraform
+          uses: hashicorp/setup-terraform@v1
+          with:
+            terraform_version: 1.0.9
+
+        - name: terraform fmt
+          uses: dflook/terraform-fmt@v1
+          with:
+            path: ./
+
+    plan:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Code Checkout
+          uses: actions/checkout@v2
+          with:
+            ref: ${{ github.event.pull_request.head.sha }}
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v1
+
+        - name: Terraform init
+          run: terraform init
+          working-directory: ./
+        - name: Set Terraform variables
+          run: |
+            echo "HCP_CLIENT_ID=${{ secrets.HCP_CLIENT_ID }}" >> $GITHUB_ENV
+            echo "HCP_CLIENT_SECRET=${{ secrets.HCP_CLIENT_SECRET }}" >> $GITHUB_ENV
+    
+
+        - name: Terraform plan
+          working-directory: ./
+          run: |
+              terraform plan \
+          
