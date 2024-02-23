@@ -5,6 +5,6 @@ data "digitalocean_ssh_key" "terraform" {
 
 # Get the digitalocean token and private key from the vault
 data "hcp_vault_secrets_secret" "do_token" {
-  app_name = "terraform-infra-dev"
+  app_name = "testing-app"
   secret_name = "DIGITALOCEAN_TOKEN"
 }
