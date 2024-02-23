@@ -1,16 +1,32 @@
-name: terraform droplet deployment 
+name: terraform droplet deployment
 
 on:
   push:
     branches:
-      - main
+      - feature/devOps
   pull_request:
     types: [closed]
     branches:
       - main-b
 
 jobs:
-  terraform-plan:
+  terraform-set-up:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.9
+
+      - name: terraform fmt
+        uses: dflook/terraform-fmt@v1
+        with:
+          path: ./
+
+  plan:
     runs-on: ubuntu-latest
     steps:
       - name: Code Checkout
@@ -25,9 +41,9 @@ jobs:
         run: terraform init
         working-directory: ./
 
-      - name: Get HCP API Token and Terraform Plan
+      - name: Get HCP API Token
         run: |
-          HCP_API_TOKEN=$(curl --location 'https://auth.hashicorp.com/oauth/token' \
+          export HCP_API_TOKEN=$(curl --location 'https://auth.hashicorp.com/oauth/token' \
             --header 'content-type: application/json' \
             --data '{
               "audience": "https://api.hashicorp.cloud",
@@ -35,8 +51,19 @@ jobs:
               "client_id": "'${{ secrets.HCP_CLIENT_ID }}'",
               "client_secret": "'${{ secrets.HCP_CLIENT_SECRET }}'"
             }' | jq -r .access_token)
+          echo "HCP_API_TOKEN=${HCP_API_TOKEN}" >> $GITHUB_ENV
+
+      - name: Use HCP API Token
+        run: |
+          echo "Using HCP_API_TOKEN: ${HCP_API_TOKEN}"
+          curl \
+            --location "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/063a2cd8-dbf9-4a4e-99f6-609d606c5454/projects/ebd78185-8887-41ab-a61b-2befcc0ab366/apps/testing-app/open" \
+            --request GET \
+            --header "Authorization: Bearer $HCP_API_TOKEN" | jq
+
+      - name: Terraform plan
+        working-directory: ./
+        run: |
           terraform plan \
             -var "hcp_api_token=${HCP_API_TOKEN}" \
-            -var "hcp_client_id=${{ secrets.HCP_CLIENT_ID }}" \
-            -var "hcp_client_secret=${{ secrets.HCP_CLIENT_SECRET }}" \
             -out=tf.plan
