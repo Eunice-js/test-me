@@ -38,7 +38,7 @@ variable "hcp_client_id" {
   default     = ""
 }
 
-variable "hcp_client_id" {
+variable "hcp_client_secret" {
   description = "HashiCorp Cloud Platform client secret"
   default     = ""
 }
