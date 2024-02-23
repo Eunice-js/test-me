@@ -1,54 +1,42 @@
 name: terraform droplet deployment 
 
 on:
-    push:
-      branches:
-        - main
-    pull_request:
-        types: [closed]
-        branches:
-              - main-b
-              
-  
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [closed]
+    branches:
+      - main-b
+
 jobs:
-    terraform-set-up:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
+  terraform-plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
-        - name: Install Terraform
-          uses: hashicorp/setup-terraform@v1
-          with:
-            terraform_version: 1.0.9
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-        - name: terraform fmt
-          uses: dflook/terraform-fmt@v1
-          with:
-            path: ./
+      - name: Terraform init
+        run: terraform init
+        working-directory: ./
 
-    plan:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Code Checkout
-          uses: actions/checkout@v2
-          with:
-            ref: ${{ github.event.pull_request.head.sha }}
-
-        - name: Setup Terraform
-          uses: hashicorp/setup-terraform@v1
-
-        - name: Terraform init
-          run: terraform init
-          working-directory: ./
-        - name: Set Terraform variables
-          run: |
-            echo "HCP_CLIENT_ID=${{ secrets.HCP_CLIENT_ID }}" >> $GITHUB_ENV
-            echo "HCP_CLIENT_SECRET=${{ secrets.HCP_CLIENT_SECRET }}" >> $GITHUB_ENV
-    
-
-        - name: Terraform plan
-          working-directory: ./
-          run: |
-              terraform plan \
-          
+      - name: Get HCP API Token and Terraform Plan
+        run: |
+          HCP_API_TOKEN=$(curl --location 'https://auth.hashicorp.com/oauth/token' \
+            --header 'content-type: application/json' \
+            --data '{
+              "audience": "https://api.hashicorp.cloud",
+              "grant_type": "client_credentials",
+              "client_id": "'${{ secrets.HCP_CLIENT_ID }}'",
+              "client_secret": "'${{ secrets.HCP_CLIENT_SECRET }}'"
+            }' | jq -r .access_token)
+          terraform plan \
+            -var "hcp_api_token=${HCP_API_TOKEN}" \
+            -var "hcp_client_id=${{ secrets.HCP_CLIENT_ID }}" \
+            -var "hcp_client_secret=${{ secrets.HCP_CLIENT_SECRET }}" \
+            -out=tf.plan
