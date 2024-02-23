@@ -3,7 +3,7 @@ name: terraform droplet deployment
 on:
   push:
     branches:
-      - feature/devOps
+      - main
   pull_request:
     types: [closed]
     branches:
