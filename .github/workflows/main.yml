@@ -48,8 +48,8 @@ jobs:
             --data '{
               "audience": "https://api.hashicorp.cloud",
               "grant_type": "client_credentials",
-              "HCP_CLIENT_ID": "'${{ secrets.HCP_CLIENT_ID }}'",
-              "HCP_CLIENT_SECRET": "'${{ secrets.HCP_CLIENT_SECRET }}'"
+              "client_id": "'${{ secrets.HCP_CLIENT_ID }}'",
+              "client_secret": "'${{ secrets.HCP_CLIENT_SECRET }}'"
             }' | jq -r .access_token)
           echo "HCP_API_TOKEN=${HCP_API_TOKEN}" >> $GITHUB_ENV
 
