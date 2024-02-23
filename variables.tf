@@ -43,3 +43,7 @@ variable "HCP_CLIENT_SECRET" {
   default     = ""
 }
 
+variable "hcp_api_token" {
+  description = "HashiCorp Cloud Platform API Token"
+}
+
