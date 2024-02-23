@@ -33,12 +33,12 @@ variable "user" {
   default = "web"
 }
 
-variable "HCP_CLIENT_ID" {
+variable "hcp_client_id" {
   description = "HashiCorp Cloud Platform client ID"
   default     = ""
 }
 
-variable "HCP_CLIENT_SECRET" {
+variable "hcp_client_id" {
   description = "HashiCorp Cloud Platform client secret"
   default     = ""
 }
