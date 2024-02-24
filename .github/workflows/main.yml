@@ -77,6 +77,6 @@ jobs:
             fields: repo,author
             author_name: 'Eunice'
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # required
+            GITHUB_TOKEN: ${{ secrets.TOKEN }} # required
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_TERRAFORM }} # required
             if: always()
